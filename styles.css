@@ -1,6 +1,8 @@
-body {
-    font-family: 'Segoe UI', sans-serif;
+@font-face { font-family: 'Mona Sans'; src: url('fonts/Mona-Sans.woff'); }
 
+:root { font-family: 'Mona Sans', sans-serif; }
+
+body {
     margin-left: 20px;
     margin-right: 20px;
     padding-top: 60px;
