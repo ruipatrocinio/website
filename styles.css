@@ -160,10 +160,11 @@ footer ul li {
 }
 
 .blog-card div {
-    border-width: 1px;
+    border-width: 2px;
     border-color:var(--border-color);
     border-style: solid;
     border-radius: 2%;
+    box-shadow: 3px 3px var(--border-color);
     padding: 10px;
 
     width: 300px;
