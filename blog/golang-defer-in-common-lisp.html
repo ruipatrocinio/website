@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Rui Patrocínio: personal website and blog">
+        <link rel="canonical" href="https://ruipatrocinio.com/">
+        <link rel="stylesheet" href="../styles.css">
+        <!-- to reduce CLS, preload the font -->
+        <link rel="preload" href="fonts/Mona-Sans.woff2" as="font" type="font/woff2" crossorigin>
+        <title>Rui Patrocínio</title>
+        <!-- Syntax highlighting-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/styles/tokyo-night-dark.min.css">
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/highlight.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/languages/lisp.min.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class="header-left">
+            </div>
+            <a class="header-title" href="/">Rui Patrocínio</a>
+            <div class="header-right">
+            </div>
+        </header>
+        <main>
+            <h2>Implementing Go's defer in Common Lisp</h2>
+            <small><i>2023-06-16</i></small>
+            <p>I have been going over the basics of <a href="https://go.dev/tour/">Go</a> and I found the <a href="https://go.dev/ref/spec#Defer_statements">defer</a> statement really interesting.</p>
+            <p>Given that Common Lisp is my favorite language, I started thinking about how to implement defer in Common Lisp and if it's really needed at all.</p>
+            <p>I don't really want to extend the Common Lisp standard by changing the defun to allow defering funcalls and since I don't see an easy way to do this without establishing some point where the deferred funcalls should be made, I decided in the spirit of Common Lisp to create a macro that allows the user to select where the deferred funcalls will be executed.</p>
+            <script>hljs.highlightAll();</script>
+            <pre><code class="language-lisp">
+(defvar *deferred-functions* :unbound)
+
+(defmacro defer ((function-name &rest args))
+    (let ((args-names (mapcar #'(lambda (arg)
+                                  (declare (ignore arg))
+                                  (gensym))
+                              args)))
+    `(let (,@(mapcar (lambda (arg name)
+                        `(,name ,arg))
+                     args
+                     args-names))
+        (push (lambda ()
+                (,function-name ,@args-names))
+              *deferred-functions*))))
+
+(defmacro with-deferred-calls (() &body body)
+  `(let ((*deferred-functions* nil))
+      (unwind-protect (progn ,@body)
+        (mapc #'funcall *deferred-functions*))))
+            </code></pre>
+
+            <p>So <b>with-deferred-calls</b> establishes a context where function calls can be deferred. At the end of it, all deferred calls will be executed. We could probably just use local macros and lexical binding instead of dynamic binding to make it all cleaner (we don't want someone to call defer outside the context of a with-deferred-call) but let's see an example of how it works.</p>
+            <pre><code class="language-lisp">
+(defun print-stacked-integers ()
+  (with-deferred-calls ()
+    (dotimes (i 5)
+      (defer (print i)))))
+
+CL-USER> (print-stacked-integers)
+
+4 
+3 
+2 
+1 
+0 
+NIL
+CL-USER> 
+            </code></pre>
+            <p>An advantage of using <strong>with-deferred-calls</strong> is that this can be used while defining methods, macros, etc. Of course this does very minimal syntax verifications but respects defer's basic properties. We can see in the next example how it evaluates arguments while executing the defer statement.</p>
+            <pre><code>
+(defun print-deferred-side-effects ()
+  (with-deferred-calls ()
+    (let ((i 0))
+      (format t "first i: ~a~%" i)
+      (defer (print (incf i)))
+      (format t "second i: ~a~%" (incf i))
+      (format t "function ends.~%"))))
+
+CL-USER> (print-deferred-side-effects)
+first i: 0
+second i: 2
+function ends.
+  
+1 
+NIL
+CL-USER>               
+            </code></pre>
+            <p>Given that incf is a macro and not a function call and this works as expected should give us pause. Maybe this doesn't work as expected for all macros and special forms. What's a defer of a cond? Something to thing about and work the details later.</p>
+        </main>
+        <footer>
+            <center>
+            <p><small>Copyright &copy; 2023 Rui Patrocínio. All rights reserved.</small></p>
+            <ul>
+                <li><a href="https://www.linkedin.com/in/ruipatrocinio/" target="_blank">
+                    <img class="linkedin-icon" src="../icons/linkedin.svg" width="20px" height="20px" alt="linkedin icon">
+                </a></li>
+                <li><a href="https://www.twitter.com/ruimpatrocinio/" target="_blank">
+                    <img class="twitter-icon" src="../icons/twitter.svg" width="20px" height="20px" alt="twitter icon">  
+                </a></li>
+            </ul>
+        </center>
+        </footer>
+    </body>

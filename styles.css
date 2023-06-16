@@ -9,6 +9,7 @@
 
 :root {
     --background-color: rgb(250, 250, 250);
+    --border-color: #979797;
 }
 
 html {
@@ -44,7 +45,7 @@ header {
 
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    border-bottom-color: #979797;
+    border-bottom-color: var(--border-color);
 }
 
 .header-left {
@@ -106,7 +107,7 @@ footer {
 
     border-top-width: 1px;
     border-top-style: solid;
-    border-top-color: #979797;
+    border-top-color: var(--border-color);
 }
 
 footer p {
@@ -151,4 +152,19 @@ footer ul li {
     .header-title {
         font-size: 1.65rem;
     }
+}
+
+.blog-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+.blog-card div {
+    border-width: 1px;
+    border-color:var(--border-color);
+    border-style: solid;
+    border-radius: 2%;
+    padding: 10px;
+
+    width: 300px;
 }
