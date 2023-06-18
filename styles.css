@@ -28,7 +28,7 @@ body {
     background-color: var(--background-color);
 }
 
-header {
+main-header {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -95,7 +95,7 @@ header {
     opacity: 0.7;
   }
 
-footer {
+main-footer {
     position: fixed;
     bottom: 0px;
     max-width: inherit;
@@ -110,23 +110,23 @@ footer {
     border-top-color: var(--border-color);
 }
 
-footer p {
+main-footer p {
     margin: 0;
 }
 
-footer ul {
+main-footer ul {
     list-style-type: none;
     padding: 0;
     margin: 8px;
 }
 
-footer ul li {
+main-footer ul li {
     display: inline;
 }
 
 /* responsive stuff */
 @media screen and (max-width: 960px) {
-    header {
+    main-header {
         min-height: 50px;
     }
 
@@ -136,7 +136,7 @@ footer ul li {
 }
 
 @media screen and (max-width: 600px) {
-    header {
+    main-header {
         min-height: 50px;
     }
 
@@ -146,7 +146,7 @@ footer ul li {
 }
 
 @media screen and (max-width: 400px) {
-    header {
+    main-header {
         min-height: 50px;
     }
     .header-title {
